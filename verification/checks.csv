@@ -1,6 +1,6 @@
 series,date,dashboard_value,source_value,check_source,evidence,match
 SF43718,2026-11-23,19.1648,19.1648,"Banxico, Portal del mercado cambiario (FIX)",screenshots/01_banxico_FIX_SF43718.jpg,yes
-SR28,2026-09,68.4797 (rebased 84.4),68.4797,"Banxico SIE table CR60 (published index, 1990 = 100)",screenshots/05_banxico_real_exchange_rate_SR28.jpg,yes
+SR28,2026-09,68.4797 (rebased 84.9),68.4797,"Banxico SIE table CR60 (published index, 1990 = 100)",screenshots/05_banxico_real_exchange_rate_SR28.jpg,yes
 SF61745,2026-11-24,6.25,6.25,"Banxico, Portal del mercado de valores (tasa objetivo)",screenshots/02_banxico_target_rate_SF61745.jpg,yes
 SP30578,2026-10,3.75,3.75,"Banxico inflation portal (INEGI INPC, anual)",screenshots/03_banxico_inflation_SP30578.jpg,yes
 SE28294,2026-09,"-606,078 (thousand USD)",-606 (million USD),"INEGI BCMM bulletin 638/26, 27 Oct 2026, Cuadro 1",screenshots/04_inegi_trade_bulletin_SE28294_SE36600_SE35403_SE28442.jpg,yes
@@ -8,6 +8,7 @@ SE36600,2026-09,"-3,354,266 (thousand USD)","-3,354 (million USD)","INEGI BCMM b
 SE35403,2026-09,"2,748,188 (thousand USD)","2,748 (million USD)","INEGI BCMM bulletin 638/26, Cuadro 2",screenshots/04_inegi_trade_bulletin_SE28294_SE36600_SE35403_SE28442.jpg,yes
 SE28442,2026-09,"16,434,120 (thousand USD)","16,434.1 (million USD)","INEGI BCMM bulletin 638/26, Cuadro 1 (Automotrices)",screenshots/04_inegi_trade_bulletin_SE28294_SE36600_SE35403_SE28442.jpg,yes
 SF30057,2026-10,9.25,9.25,"Banxico SIE table CF114 (Bono a tasa fija, a 10 años)",screenshots/06_banxico_bono_m_10y_SF30057.jpg,yes
+DFEDTAR,2008-01-22,3.50,3.50 (all six 2008 changes match),"Federal Reserve Board, Open Market Operations page, 2008 table",screenshots/09_fed_target_2008_DFEDTAR.jpg,yes
 DFEDTARU,2026-11-23,4.00,4.00 (range 3.75-4.00 since 17 Sep 2026),"Federal Reserve Board, Open Market Operations page",screenshots/08_fed_target_range_DFEDTARU_DFEDTARL.jpg,yes
 DFEDTARL,2026-11-23,3.75,3.75 (range 3.75-4.00 since 17 Sep 2026),"Federal Reserve Board, Open Market Operations page",screenshots/08_fed_target_range_DFEDTARU_DFEDTARL.jpg,yes
 CPIAUCNS,2026-10,337.511,337.511,"BLS CPI news release for October 2026 (10 Nov 2026)",screenshots/07_bls_cpi_release_CPIAUCNS.jpg,yes
