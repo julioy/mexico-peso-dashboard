@@ -67,11 +67,25 @@ def build_data():
     rer = raw["SR28"][raw["SR28"].index >= RER_START]
     rer_mean = rer.mean()
     out["rer"] = rer / rer_mean * 100
+    # Estimate for the months after Banxico's latest index: the official index
+    # lags about two months, and the peso can move a lot in that time. Each
+    # later month's index = latest official value x (that month's average FIX /
+    # the latest official month's average FIX); the current month uses its
+    # month-to-date average. Assumes relative prices and the dollar's value
+    # against Mexico's other trading partners stay at the latest official month.
+    fx_m = raw["SF43718"].resample("MS").mean()
+    m0 = out["rer"].index[-1]
+    later = fx_m[fx_m.index > m0]
+    est = out["rer"].iloc[-1] * later / fx_m[m0]
+    out["rer_est"] = pd.concat([out["rer"].iloc[-1:], est])
 
     # 3. Policy rates and differential (Fed = midpoint of target range)
     end = max(today, raw["SF61745"].index.max())
     bmx = step_daily(raw["SF61745"], end)
-    fed = step_daily((raw["DFEDTARU"] + raw["DFEDTARL"]).dropna() / 2, end)
+    # Fed: single target until 15 Dec 2008, midpoint of the target range after
+    mid = (raw["DFEDTARU"] + raw["DFEDTARL"]).dropna() / 2
+    fed_t = pd.concat([raw["DFEDTAR"][raw["DFEDTAR"].index < mid.index.min()], mid])
+    fed = step_daily(fed_t, end)
     rates = pd.DataFrame({"banxico": bmx, "fed": fed}).dropna()
     rates = rates[rates.index >= SAMPLE_START]
     rates["diff"] = rates["banxico"] - rates["fed"]
@@ -185,7 +199,9 @@ def build():
     # ---- headline numbers
     fx_now, fx_1y = fx.iloc[-1], (fx.iloc[-1] / fx[fx.index <= fx.index[-1] - pd.DateOffset(years=1)].iloc[-1] - 1) * 100
     rer_now = rer.iloc[-1]
-    rer_rank = (rer < rer_now).mean() * 100  # share of months with a stronger real peso
+    rer_est = d["rer_est"]
+    est_now = rer_est.iloc[-1] if len(rer_est) > 1 else rer_now
+    rer_rank = (rer < est_now).mean() * 100  # share of months with a stronger real peso than today's estimate
     diff_now = rates["diff"].iloc[-1]
     infl_last = infl.dropna()
     inf_mx, inf_us = infl_last["mx"].iloc[-1], infl_last["us"].iloc[-1]
@@ -196,11 +212,20 @@ def build():
     ratio = diff_now / vol_now
 
     # ---- auto-generated reading (states facts and simple comparisons only)
-    stronger = "stronger" if rer_now < 100 else "weaker"
+    def strength(v):
+        if v < 90: return "strong"
+        if v < 97: return "somewhat strong"
+        if v <= 103: return "close to its average"
+        return "weak"
+    fx_m = raw["SF43718"].resample("MS").mean()
+    est_month = rer_est.index[-1]
     reading = [
-        f"<b>Valuation.</b> The real exchange rate is {abs(rer_now - 100):.0f}% {'below' if rer_now < 100 else 'above'} its 2003&ndash;present average, so the peso is "
-        f"<b>{stronger}</b> in real terms than usual; it was this strong or stronger in only {rer_rank:.0f}% of months since January 2003, when Banxico's 3% inflation target took effect. "
-        f"In nominal terms USD/MXN is {fx_now:.2f}, {'up' if fx_1y > 0 else 'down'} {abs(fx_1y):.1f}% over the past year ({'peso weaker' if fx_1y > 0 else 'peso stronger'}).",
+        f"<b>Valuation.</b> In {fmt_date(rer.index[-1], 'M')}, the latest official month, the real exchange rate was {abs(rer_now - 100):.0f}% "
+        f"{'below' if rer_now < 100 else 'above'} its 2003&ndash;present average (the peso stronger than usual). Since then the peso has "
+        f"{'weakened' if fx_m[est_month] > fx_m[rer.index[-1]] else 'strengthened'} from an average of {fx_m[rer.index[-1]]:.2f} to {fx_m[est_month]:.2f} per dollar "
+        f"({fmt_date(est_month, 'M')}{' to date' if est_month == fx_m.index[-1] else ''}), which puts the index near {est_now:.0f} (estimate): "
+        f"{abs(est_now - 100):.0f}% {'stronger' if est_now < 100 else 'weaker'} than average, a level the peso was at or stronger than in {rer_rank:.0f}% of months since January 2003. "
+        f"USD/MXN is {fx_now:.2f} today, {'up' if fx_1y > 0 else 'down'} {abs(fx_1y):.1f}% over the past year.",
         f"<b>Carry.</b> Banxico's target rate exceeds the Fed's by {diff_now:.2f} percentage points. By covered interest parity this is roughly the annual "
         f"forward premium on USD/MXN, i.e. the yearly cost of hedging a peso receivable by selling pesos forward (or the gain from hedging a peso payable).",
         f"<b>Inflation.</b> Mexican inflation is {inf_mx:.2f}% versus {inf_us:.2f}% in the U.S. (latest common month). A positive gap erodes the peso's real value "
@@ -211,7 +236,7 @@ def build():
         f"so the carry earned per unit of risk is {ratio:.2f}. A low ratio means an unhedged position is paid little for the currency risk it carries.",
     ]
 
-    finding = (f"The peso is {'strong' if rer_now < 100 else 'weak'} in real terms, "
+    finding = (f"The peso is {strength(est_now)} in real terms, "
                f"and the carry {'pays little' if ratio < 0.5 else 'pays well'} for the currency risk")
 
     def meta(*sids):
@@ -232,17 +257,19 @@ def build():
             "units": "Index, Jan 2003&ndash;present average = 100", "freq": "Monthly",
             "convention": "Banxico's definition: foreign prices in pesos divided by Mexican prices, against 111 countries. "
                           "<b>Above 100</b> = peso cheaper than average (real depreciation); <b>below 100</b> = peso dearer than average (real appreciation).",
-            "transform": f"Rebased: published index (1990 = 100) divided by its Jan 2003&ndash;latest mean ({rer_mean:.1f}) &times; 100. Benchmark starts in January 2003, when Banxico's permanent 3% &plusmn; 1 pp inflation target took effect; earlier years mix the 1994&ndash;95 crisis overshoot and high inflation with today's regime.",
-            "latest": f"{rer_now:.1f}", "latest_date": fmt_date(rer.index[-1], "M"), "srcs": meta("SR28"),
-            "traces": [{"name": "Real exchange rate", "color": C1, **ser(rer, 2)}],
+            "transform": f"Rebased: published index (1990 = 100) divided by its Jan 2003&ndash;latest mean ({rer_mean:.1f}) &times; 100. Benchmark starts in January 2003, when Banxico's permanent 3% &plusmn; 1 pp inflation target took effect; earlier years mix the 1994&ndash;95 crisis overshoot and high inflation with today's regime. "
+                         "Dotted line: estimate for the months after Banxico's latest release (the index lags about two months), = latest official value &times; that month's average FIX / the latest official month's average FIX (current month: month-to-date). It holds relative prices and the dollar's value against other trading partners at the latest official month.",
+            "latest": f"{rer_now:.1f} (est. {est_now:.1f})", "latest_date": fmt_date(rer.index[-1], "M") + f"; estimate {fmt_date(rer_est.index[-1], 'M')}", "srcs": meta("SR28", "SF43718"),
+            "traces": [{"name": "Official (Banxico)", "color": C1, **ser(rer, 2)},
+                       {"name": "Estimate from FIX since", "color": C2, "dash": "dot", **ser(rer_est, 2)}],
             "ref": 100, "ref_label": "2003\u2013present average = 100", "yfmt": ".0f", "hover": "%{y:.1f}",
         },
         {
             "id": "c_rates", "section": "Carry and inflation", "title": "Policy rates and the carry",
             "units": "Percent per year", "freq": "Daily (changes on decision dates)",
             "convention": "Differential = Banxico target rate minus the midpoint of the Fed funds target range. By covered interest parity it approximates the annualized forward premium on USD/MXN.",
-            "transform": "Fed midpoint = (upper + lower limit) / 2. Rates carried forward between decisions.",
-            "latest": f"{diff_now:.2f} pp", "latest_date": fmt_date(rates.index[-1], "D"), "srcs": meta("SF61745", "DFEDTARU", "DFEDTARL"),
+            "transform": "Fed: the single target rate until 15 Dec 2008, then the midpoint of the target range, (upper + lower limit) / 2. Rates carried forward between decisions. Banxico has targeted the overnight rate since 21 Jan 2008, so the chart starts there.",
+            "latest": f"{diff_now:.2f} pp", "latest_date": fmt_date(rates.index[-1], "D"), "srcs": meta("SF61745", "DFEDTAR", "DFEDTARU", "DFEDTARL"),
             "traces": [
                 {"name": "Banxico target", "color": C1, "shape": "hv", **ser(rates["banxico"], 2)},
                 {"name": "Fed funds (midpoint)", "color": C2, "shape": "hv", **ser(rates["fed"], 3)},
@@ -302,7 +329,7 @@ def build():
             "units": "Percent per year", "freq": "Daily",
             "convention": "Volatility is the one-standard-deviation annual move in USD/MXN; the carry is what an unhedged peso position earns (or a hedge costs) per year. Compare the two to judge whether hedging is worth it.",
             "transform": "Realized volatility = standard deviation of daily log changes in the FIX over the last 21 business days &times; &radic;252 &times; 100. Carry = policy rate differential from the chart above.",
-            "latest": f"{vol_now:.1f}% vs {diff_now:.2f}%", "latest_date": fmt_date(vol.index[-1], "D"), "srcs": meta("SF43718", "SF61745", "DFEDTARU", "DFEDTARL"),
+            "latest": f"{vol_now:.1f}% vs {diff_now:.2f}%", "latest_date": fmt_date(vol.index[-1], "D"), "srcs": meta("SF43718", "SF61745", "DFEDTAR", "DFEDTARU", "DFEDTARL"),
             "traces": [
                 {"name": "Realized volatility (21-day)", "color": C1, **ser(vol["vol"], 2)},
                 {"name": "Carry (rate differential)", "color": C2, "shape": "hv", **ser(vol["carry"], 2)},
@@ -313,7 +340,7 @@ def build():
 
     kpis = [
         ("USD/MXN", f"{fx_now:.2f}", f"{fx_1y:+.1f}% over 1 year", fmt_date(fx.index[-1], "D")),
-        ("Real exchange rate", f"{rer_now:.0f}", "avg = 100; below = strong peso", fmt_date(rer.index[-1], "M")),
+        ("Real exchange rate", f"{est_now:.0f} (est.)", f"avg = 100; below = strong peso; official {fmt_date(rer.index[-1], 'M')}: {rer_now:.0f}", fmt_date(rer_est.index[-1], "M") + " (estimate)"),
         ("Carry (Banxico &minus; Fed)", f"{diff_now:.2f} pp", "&asymp; annual forward premium", fmt_date(rates.index[-1], "D")),
         ("Inflation gap", f"{inf_mx - inf_us:+.2f} pp", f"Mexico {inf_mx:.2f}%, U.S. {inf_us:.2f}%", fmt_date(infl_last.index[-1], "M")),
         ("Non-oil trade balance", f"US${tb_now['nonoil']:.0f} bn", "last 12 months", fmt_date(trade.index[-1], "M")),

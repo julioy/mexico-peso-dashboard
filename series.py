@@ -5,10 +5,12 @@ source, identifier, native units and frequency. fetch_data.py downloads
 exactly these series; build_dashboard.py turns them into the eight charts.
 """
 
-# Sample start for most charts. 2015 covers the 2016 U.S. election shock,
-# the 2020 COVID sell-off, the 2022-23 hiking cycle, the 2023 "super peso"
-# and the 2024-26 easing cycle and tariff episodes.
-SAMPLE_START = "2015-01-01"
+# Sample start for most charts: January 2008. Banxico has targeted the overnight
+# interbank rate since 21 Jan 2008 (series SF61745 starts then), and starting
+# here keeps the 2008-09 global financial crisis, the largest peso sell-off
+# before COVID, in view for the hedging question. It also covers the 2016 U.S.
+# election shock, COVID, the 2022-23 hiking cycle and the 2023 "super peso".
+SAMPLE_START = "2008-01-01"
 
 # Benchmark for the real exchange rate: January 2003, when Banxico's permanent
 # 3% (+/- 1 pp) inflation target took effect. Earlier years mix the 1994-95
@@ -85,6 +87,13 @@ BANXICO = {
 # U.S. series. FRED is only the delivery channel: the original publishers are
 # the Federal Reserve Board and the Bureau of Labor Statistics.
 FRED = {
+    "DFEDTAR": {
+        "name": "Fed funds target rate (single target, until 15 Dec 2008)",
+        "units": "Percent per year",
+        "freq": "Daily",
+        "source": "Federal Reserve Board, via FRED (DFEDTAR)",
+        "url": "https://fred.stlouisfed.org/series/DFEDTAR",
+    },
     "DFEDTARU": {
         "name": "Fed funds target range, upper limit",
         "units": "Percent per year",
