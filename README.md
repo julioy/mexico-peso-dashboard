@@ -7,7 +7,7 @@ A dashboard of eight indicators drawn from primary sources (Banco de México, IN
 | # | Chart | Series | Source | Frequency |
 |---|---|---|---|---|
 | 1 | USD/MXN exchange rate (FIX), pesos per dollar | SF43718 | Banxico | Daily |
-| 2 | Real exchange rate, rebased to 1995 to present mean = 100 | SR28 | Banxico | Monthly |
+| 2 | Real exchange rate, rebased to January 2003 to present mean = 100 | SR28 | Banxico | Monthly |
 | 3 | Banxico target rate, Fed funds midpoint and the differential (carry) | SF61745, DFEDTARU, DFEDTARL | Banxico, Federal Reserve | Daily |
 | 4 | Headline inflation, Mexico vs. U.S. | SP30578, CPIAUCNS | INEGI via Banxico, BLS | Monthly |
 | 5 | Goods trade balance, oil vs. non-oil, 12 month sum | SE28294, SE36600, SE35403 | INEGI/SAT/SE/Banxico | Monthly |
@@ -58,7 +58,7 @@ open docs/index.html
 
 All of them are in `build_dashboard.py` and described under each chart:
 
-* **Real exchange rate:** Banxico's index (1990 = 100; an increase is a real depreciation of the peso) divided by its January 1995 to latest mean, times 100.
+* **Real exchange rate:** Banxico's index (1990 = 100; an increase is a real depreciation of the peso) divided by its January 2003 to latest mean, times 100. January 2003 is when Banxico's permanent 3% inflation target took effect, so the benchmark covers one monetary regime and excludes the 1994 to 1995 crisis overshoot.
 * **Fed funds:** midpoint of the target range, (upper + lower) / 2.
 * **U.S. inflation:** 12 month % change of the not seasonally adjusted CPI-U, the same basis as Mexico's INPC figure. BLS did not collect October 2025 prices (federal shutdown), so U.S. inflation for October 2025 and October 2026 is left blank, as BLS itself does.
 * **Trade and auto exports:** monthly values in thousands of USD, summed over 12 months and shown in billions.

@@ -10,9 +10,11 @@ exactly these series; build_dashboard.py turns them into the eight charts.
 # and the 2024-26 easing cycle and tariff episodes.
 SAMPLE_START = "2015-01-01"
 
-# The real exchange rate needs a longer history to judge over/undervaluation.
-# 1995 is the first full year of the floating peso.
-RER_START = "1995-01-01"
+# Benchmark for the real exchange rate: January 2003, when Banxico's permanent
+# 3% (+/- 1 pp) inflation target took effect. Earlier years mix the 1994-95
+# Tequila crisis overshoot and high inflation with the current regime, so a
+# 1995-present mean would not be a like-for-like "normal" level.
+RER_START = "2003-01-01"
 
 BANXICO = {
     "SF43718": {

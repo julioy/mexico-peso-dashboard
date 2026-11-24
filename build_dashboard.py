@@ -2,7 +2,7 @@
 
 All transformations happen here, in one place, so they can be audited:
   * year-over-year growth, 12-month rolling sums, unit conversions,
-  * rebasing the real exchange rate to its 1995-present mean = 100,
+  * rebasing the real exchange rate to its 2003-present mean = 100,
   * the Banxico-Fed policy rate differential and the 10-year yield spread,
   * 21-business-day realized volatility of USD/MXN.
 
@@ -63,7 +63,7 @@ def build_data():
     fx = raw["SF43718"]
     out["fx"] = fx[fx.index >= SAMPLE_START]
 
-    # 2. Real exchange rate, rebased to its 1995-present mean = 100
+    # 2. Real exchange rate, rebased to its Jan 2003-present mean = 100 (3% target regime)
     rer = raw["SR28"][raw["SR28"].index >= RER_START]
     rer_mean = rer.mean()
     out["rer"] = rer / rer_mean * 100
@@ -131,6 +131,11 @@ def pct_change(s, periods):
     return (s.iloc[-1] / s.iloc[-1 - periods] - 1) * 100
 
 
+def usd(x):
+    """US$ billions with the sign in front: -32.4 -> '-US$32.4 bn'."""
+    return f"{'\u2212' if x < 0 else ''}US${abs(x):.1f} bn"
+
+
 def read_status():
     p = os.path.join(ROOT, "data", "status.json")
     return json.load(open(p)) if os.path.exists(p) else {}
@@ -193,14 +198,14 @@ def build():
     # ---- auto-generated reading (states facts and simple comparisons only)
     stronger = "stronger" if rer_now < 100 else "weaker"
     reading = [
-        f"<b>Valuation.</b> The real exchange rate is {abs(rer_now - 100):.0f}% {'below' if rer_now < 100 else 'above'} its 1995&ndash;present average, so the peso is "
-        f"<b>{stronger}</b> in real terms than usual; it was this strong or stronger in only {rer_rank:.0f}% of months since 1995. "
+        f"<b>Valuation.</b> The real exchange rate is {abs(rer_now - 100):.0f}% {'below' if rer_now < 100 else 'above'} its 2003&ndash;present average, so the peso is "
+        f"<b>{stronger}</b> in real terms than usual; it was this strong or stronger in only {rer_rank:.0f}% of months since January 2003, when Banxico's 3% inflation target took effect. "
         f"In nominal terms USD/MXN is {fx_now:.2f}, {'up' if fx_1y > 0 else 'down'} {abs(fx_1y):.1f}% over the past year ({'peso weaker' if fx_1y > 0 else 'peso stronger'}).",
         f"<b>Carry.</b> Banxico's target rate exceeds the Fed's by {diff_now:.2f} percentage points. By covered interest parity this is roughly the annual "
         f"forward premium on USD/MXN, i.e. the yearly cost of hedging a peso receivable by selling pesos forward (or the gain from hedging a peso payable).",
         f"<b>Inflation.</b> Mexican inflation is {inf_mx:.2f}% versus {inf_us:.2f}% in the U.S. (latest common month). A positive gap erodes the peso's real value "
         f"unless the nominal rate depreciates by a similar amount.",
-        f"<b>Trade.</b> Over the last 12 months the non-oil goods balance was US${tb_now['nonoil']:.1f} bn and the oil balance US${tb_now['oil']:.1f} bn. "
+        f"<b>Trade.</b> Over the last 12 months the non-oil goods balance was {usd(tb_now['nonoil'])} and the oil balance {usd(tb_now['oil'])}. "
         f"Automotive exports totaled US${auto_now['sum12']:.0f} bn, {auto_now['yoy12']:+.1f}% versus the previous 12 months.",
         f"<b>Risk.</b> The 10-year Bono M&ndash;Treasury spread is {y_now['spread']:.2f} pp. Realized USD/MXN volatility is {vol_now:.1f}% (sample median {vol_med:.1f}%), "
         f"so the carry earned per unit of risk is {ratio:.2f}. A low ratio means an unhedged position is paid little for the currency risk it carries.",
@@ -224,13 +229,13 @@ def build():
         },
         {
             "id": "c_rer", "section": "Exchange rate", "title": "Real exchange rate of the peso",
-            "units": "Index, 1995&ndash;present average = 100", "freq": "Monthly",
+            "units": "Index, Jan 2003&ndash;present average = 100", "freq": "Monthly",
             "convention": "Banxico's definition: foreign prices in pesos divided by Mexican prices, against 111 countries. "
                           "<b>Above 100</b> = peso cheaper than average (real depreciation); <b>below 100</b> = peso dearer than average (real appreciation).",
-            "transform": f"Rebased: published index (1990 = 100) divided by its Jan 1995&ndash;latest mean ({rer_mean:.1f}) &times; 100. Sample starts 1995, the first full year of the float.",
+            "transform": f"Rebased: published index (1990 = 100) divided by its Jan 2003&ndash;latest mean ({rer_mean:.1f}) &times; 100. Benchmark starts in January 2003, when Banxico's permanent 3% &plusmn; 1 pp inflation target took effect; earlier years mix the 1994&ndash;95 crisis overshoot and high inflation with today's regime.",
             "latest": f"{rer_now:.1f}", "latest_date": fmt_date(rer.index[-1], "M"), "srcs": meta("SR28"),
             "traces": [{"name": "Real exchange rate", "color": C1, **ser(rer, 2)}],
-            "ref": 100, "ref_label": "1995\u2013present average = 100", "yfmt": ".0f", "hover": "%{y:.1f}",
+            "ref": 100, "ref_label": "2003\u2013present average = 100", "yfmt": ".0f", "hover": "%{y:.1f}",
         },
         {
             "id": "c_rates", "section": "Carry and inflation", "title": "Policy rates and the carry",
