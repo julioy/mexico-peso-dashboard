@@ -1,14 +1,14 @@
 series,name,source,latest_date,latest_value,n_obs
 SF43718,"USD/MXN exchange rate, FIX","Banco de México, SIE (series SF43718)",2026-11-23,19.1648,8804
 SR28,"Real exchange rate index (111 countries, CPI based)","Banco de México, SIE (series SR28)",2026-09-01,68.4797,441
-SF61745,Banxico target interest rate,"Banco de México, SIE (series SF61745)",2026-11-23,6.25,6786
+SF61745,Banxico target interest rate,"Banco de México, SIE (series SF61745)",2026-11-24,6.25,6787
 SP30578,"Mexico headline inflation (INPC), annual","INEGI, published by Banco de México SIE (series SP30578)",2026-10-01,3.75,442
 SE28294,"Goods trade balance, total","INEGI/SAT/SE/Banxico, Banco de México SIE (series SE28294)",2026-09-01,-606078.0,441
 SE36600,"Goods trade balance, oil","INEGI/SAT/SE/Banxico, Banco de México SIE (series SE36600)",2026-09-01,-3354266.0,405
 SE35403,"Goods trade balance, non-oil","INEGI/SAT/SE/Banxico, Banco de México SIE (series SE35403)",2026-09-01,2748188.0,405
 SE28442,Automotive manufacturing exports,"INEGI/SAT/SE/Banxico, Banco de México SIE (series SE28442)",2026-09-01,16434120.0,405
 SF30057,10-year fixed-rate government bond (Bono M) yield,"Banco de México, SIE (series SF30057)",2026-10-01,9.25,238
-DFEDTARU,"Fed funds target range, upper limit","Federal Reserve Board, via FRED (DFEDTARU)",2026-11-23,4.0,6552
-DFEDTARL,"Fed funds target range, lower limit","Federal Reserve Board, via FRED (DFEDTARL)",2026-11-23,3.75,6552
+DFEDTARU,"Fed funds target range, upper limit","Federal Reserve Board, via FRED (DFEDTARU)",2026-11-24,4.0,6553
+DFEDTARL,"Fed funds target range, lower limit","Federal Reserve Board, via FRED (DFEDTARL)",2026-11-24,3.75,6553
 CPIAUCNS,"U.S. CPI, all urban consumers, not seasonally adjusted","U.S. Bureau of Labor Statistics, via FRED (CPIAUCNS)",2026-10-01,337.511,1365
 GS10,"10-year U.S. Treasury yield, constant maturity","Federal Reserve Board H.15, via FRED (GS10)",2026-10-01,5.13,883
