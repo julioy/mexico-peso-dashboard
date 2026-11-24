@@ -8,6 +8,7 @@ SE36600,"Goods trade balance, oil","INEGI/SAT/SE/Banxico, Banco de México SIE (
 SE35403,"Goods trade balance, non-oil","INEGI/SAT/SE/Banxico, Banco de México SIE (series SE35403)",2026-09-01,2748188.0,405
 SE28442,Automotive manufacturing exports,"INEGI/SAT/SE/Banxico, Banco de México SIE (series SE28442)",2026-09-01,16434120.0,405
 SF30057,10-year fixed-rate government bond (Bono M) yield,"Banco de México, SIE (series SF30057)",2026-10-01,9.25,238
+DFEDTAR,"Fed funds target rate (single target, until 15 Dec 2008)","Federal Reserve Board, via FRED (DFEDTAR)",2008-12-15,1.0,9577
 DFEDTARU,"Fed funds target range, upper limit","Federal Reserve Board, via FRED (DFEDTARU)",2026-11-24,4.0,6553
 DFEDTARL,"Fed funds target range, lower limit","Federal Reserve Board, via FRED (DFEDTARL)",2026-11-24,3.75,6553
 CPIAUCNS,"U.S. CPI, all urban consumers, not seasonally adjusted","U.S. Bureau of Labor Statistics, via FRED (CPIAUCNS)",2026-10-01,337.511,1365
