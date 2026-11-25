@@ -1,7 +1,7 @@
 {
-  "last_attempt_utc": "2026-11-24 16:49:50 UTC",
+  "last_attempt_utc": "2026-11-25 02:38:38 UTC",
   "last_attempt_ok": true,
   "failed_series": [],
-  "last_successful_refresh_utc": "2026-11-24 16:49:50 UTC",
+  "last_successful_refresh_utc": "2026-11-25 02:38:38 UTC",
   "refresh_method": "Automated: GitHub Actions"
 }
